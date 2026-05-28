@@ -195,26 +195,6 @@
                             </label>
                         </div>
 
-                        <!-- Telegram Section -->
-                        <div style="border-top: 1px solid var(--card-border); padding-top: 24px; margin-top: 24px;">
-                            <h4 style="font-weight: 700; margin-bottom: 12px; color: var(--secondary); display: flex; align-items: center; gap: 8px;">
-                                <span>✈️</span> Telegram Bot Integration
-                            </h4>
-                            
-                            <div class="form-group">
-                                <label for="telegram_token">Telegram Bot Token</label>
-                                <input type="text" id="telegram_token" placeholder="e.g. 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="telegram_chat_id">Telegram Chat ID / Channel ID</label>
-                                <input type="text" id="telegram_chat_id" placeholder="e.g. -100123456789 or 987654321">
-                                <p style="color: var(--text-muted); font-size: 0.72rem; margin-top: 5px;">
-                                    Create a bot via @BotFather, retrieve token, create group, add bot, and grab Chat ID.
-                                </p>
-                            </div>
-                        </div>
-
                         <!-- Discord Section -->
                         <div style="border-top: 1px solid var(--card-border); padding-top: 24px; margin-top: 24px; margin-bottom: 30px;">
                             <h4 style="font-weight: 700; margin-bottom: 12px; color: #5865f2; display: flex; align-items: center; gap: 8px;">
@@ -239,9 +219,6 @@
                 <div class="glass" style="padding: 24px;">
                     <h4 style="font-weight: 700; margin-bottom: 12px;">Integration Guide</h4>
                     <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 18px; line-height: 1.7;">
-                        <li style="margin-bottom: 12px;">
-                            <strong>Telegram Bot:</strong> Send a message to <code>@BotFather</code> in Telegram, type <code>/newbot</code>, copy the API Token. Create a group, add your bot as admin, send a dummy message, then access <code>https://api.telegram.org/bot&lt;Token&gt;/getUpdates</code> to find the group's <code>chat_id</code>.
-                        </li>
                         <li style="margin-bottom: 12px;">
                             <strong>Discord Channel:</strong> Go to Discord channel settings $\rightarrow$ Integrations $\rightarrow$ Webhooks $\rightarrow$ Create Webhook, copy the webhook URL.
                         </li>
