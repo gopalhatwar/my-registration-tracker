@@ -70,7 +70,10 @@
                 <div class="glass" style="padding: 24px; min-height: 500px;">
                     <div class="panel-header">
                         <h3 class="panel-title">Real-Time User Sessions</h3>
-                        <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="loadDashboardData()">🔄 Refresh</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="loadDashboardData()">🔄 Refresh</button>
+                            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="clearAllData()">🗑️ Clear All</button>
+                        </div>
                     </div>
                     
                     <div class="table-wrap">

@@ -4,6 +4,7 @@ const API_STATS = '/api/admin/stats';
 const API_SETTINGS = '/api/admin/settings';
 const API_TEST_NOTIFY = '/api/admin/test-notification';
 const API_STREAM = '/api/admin/stream';
+const API_CLEAR_SESSIONS = '/api/admin/clear-sessions';
 
 // In-memory data store
 let allSessions = [];
@@ -261,6 +262,15 @@ function connectSSE() {
             const data = JSON.parse(event.data);
             if (data.type === 'session_update') {
                 handleLiveUpdate(data.session, data.is_new);
+            } else if (data.type === 'clear_sessions') {
+                showToast("Data was cleared by administrator.", "info");
+                allSessions = [];
+                document.getElementById('activity-feed').innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        No recent activity
+                    </div>
+                `;
+                loadDashboardData();
             }
         } catch (e) {
             // Catch ping messages or non-JSON formats
@@ -523,8 +533,6 @@ async function loadSettings() {
         const res = await fetch(API_SETTINGS);
         if (res.ok) {
             const settings = await res.json();
-            document.getElementById('telegram_token').value = settings.telegram_token || '';
-            document.getElementById('telegram_chat_id').value = settings.telegram_chat_id || '';
             document.getElementById('discord_webhook').value = settings.discord_webhook || '';
             document.getElementById('enable_notifications').checked = settings.enable_notifications !== false;
         }
@@ -541,8 +549,6 @@ async function saveSettings(e) {
     btn.disabled = true;
 
     const payload = {
-        telegram_token: document.getElementById('telegram_token').value.trim(),
-        telegram_chat_id: document.getElementById('telegram_chat_id').value.trim(),
         discord_webhook: document.getElementById('discord_webhook').value.trim(),
         enable_notifications: document.getElementById('enable_notifications').checked
     };
@@ -570,13 +576,11 @@ async function saveSettings(e) {
 // Trigger integration tests
 async function testNotification() {
     const payload = {
-        telegram_token: document.getElementById('telegram_token').value.trim(),
-        telegram_chat_id: document.getElementById('telegram_chat_id').value.trim(),
         discord_webhook: document.getElementById('discord_webhook').value.trim()
     };
 
-    if (!payload.telegram_token && !payload.discord_webhook) {
-        showToast("Enter a token or webhook to test first.", "info");
+    if (!payload.discord_webhook) {
+        showToast("Enter a webhook to test first.", "info");
         return;
     }
 
@@ -594,5 +598,34 @@ async function testNotification() {
         }
     } catch (err) {
         showToast("Failed to trigger tests.", "error");
+    }
+}
+
+// POST: Request server to delete all session tracking data
+async function clearAllData() {
+    if (!confirm("⚠️ WARNING: Are you sure you want to delete all registered participant data? This will clear all statistics and cannot be undone.")) {
+        return;
+    }
+    
+    try {
+        const res = await fetch(API_CLEAR_SESSIONS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (res.ok) {
+            showToast("All session data cleared!", "success");
+            allSessions = [];
+            document.getElementById('activity-feed').innerHTML = `
+                <div class="empty-state" style="padding: 20px;">
+                    No recent activity
+                </div>
+            `;
+            loadDashboardData();
+        } else {
+            showToast("Failed to clear data.", "error");
+        }
+    } catch (e) {
+        showToast("Server connection error.", "error");
     }
 }

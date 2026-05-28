@@ -267,6 +267,11 @@ class FormTrackerHandler(BaseHTTPRequestHandler):
             self.handle_test_notification(body, origin)
             return
 
+        # API: Clear All Sessions
+        if path == '/api/admin/clear-sessions':
+            self.handle_clear_sessions(origin)
+            return
+
         self.send_error_response(404, "Endpoint not found", origin)
 
     # SSE Connection Handler
@@ -458,6 +463,16 @@ class FormTrackerHandler(BaseHTTPRequestHandler):
             "sessionId": session_id,
             "segment": sessions[session_id]['current_segment']
         }, origin)
+
+    # POST: Clear all sessions
+    def handle_clear_sessions(self, origin):
+        if save_db(SESSIONS_FILE, {}):
+            broadcast_event({
+                "type": "clear_sessions"
+            })
+            self.send_json_response(200, {"success": True, "message": "All session data cleared successfully"}, origin)
+        else:
+            self.send_error_response(500, "Failed to clear session data", origin)
 
     # Serving Static Files Handler
     def handle_static_files(self, path):
