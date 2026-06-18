@@ -21,8 +21,20 @@ let formData = JSON.parse(localStorage.getItem(STORAGE_KEY_FORM_DATA)) || {};
 window.addEventListener('DOMContentLoaded', () => {
     populateForm();
     setupAutosave();
+    setupPaymentTracking();
     navigateToStep(currentStep, false);
 });
+
+function setupPaymentTracking() {
+    const paymentBtn = document.getElementById('payment-link-btn');
+    if (paymentBtn) {
+        paymentBtn.addEventListener('click', () => {
+            formData['payment_status'] = 'Clicked Payment Link';
+            localStorage.setItem(STORAGE_KEY_FORM_DATA, JSON.stringify(formData));
+            syncWithBackend();
+        });
+    }
+}
 
 // Fill fields with stored values
 function populateForm() {
@@ -150,7 +162,7 @@ function navigateToStep(step, runValidation = true) {
             const email = encodeURIComponent(formData.email || '');
             const mobile = encodeURIComponent(formData.mobile || '');
             // Append multiple standard parameter formats to maximize pre-fill compatibility
-            paymentBtn.href = `https://pegasus.imarticus.org/payments/pay/?name=${name}&fullname=${name}&email=${email}&email_id=${email}&phone=${mobile}&mobile=${mobile}&contact=${mobile}&mobileNumber=${mobile}`;
+            paymentBtn.href = `https://pegasus.imarticus.org/payments/pay/?sessionId=${sessionId}&name=${name}&fullname=${name}&email=${email}&email_id=${email}&phone=${mobile}&mobile=${mobile}&contact=${mobile}&mobileNumber=${mobile}`;
         }
     } else {
         btnNext.innerHTML = 'Next Step →';

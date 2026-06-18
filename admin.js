@@ -207,9 +207,9 @@ function renderSessionsTable() {
                         <span style="font-size: 0.8rem; font-weight: 600;">${progressPct}%</span>
                     </div>
                 </td>
-                <td>
-                    <div>${formatTime(lastUpdated)}</div>
-                    <div class="text-sub">${formatDate(lastUpdated)}</div>
+                <td class="time-cell" data-timestamp="${session.last_updated}">
+                    <div class="time-ago" style="font-weight: 600;">${timeAgo(lastUpdated)}</div>
+                    <div class="text-sub" style="font-size: 0.75rem;">${formatTime(lastUpdated)} (${formatDate(lastUpdated)})</div>
                 </td>
                 <td>
                     <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="openDetails('${session.id}')">
@@ -228,6 +228,18 @@ function formatTime(date) {
 
 function formatDate(date) {
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function timeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 5) return 'Just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
 }
 
 // SSE Connection Manager
@@ -285,13 +297,22 @@ function handleLiveUpdate(session, isNew) {
     const segment = session.current_segment || 1;
     
     // Play sound chime alert
-    playAudioAlert(segment === 4);
+    playAudioAlert(segment === 4 && fields.transactionId);
 
     // Create Toast alert in dashboard UI
-    const toastType = segment === 4 ? 'success' : 'info';
+    let toastType = 'info';
     let toastMsg = ``;
     if (segment === 4) {
-        toastMsg = `<strong>🏆 Registration Completed!</strong><br>${name} completed the registration and payment.`;
+        if (fields.transactionId) {
+            toastType = 'success';
+            toastMsg = `<strong>🏆 Registration Completed!</strong><br>${name} completed the registration and payment.`;
+        } else if (fields.payment_status === 'Clicked Payment Link') {
+            toastType = 'info';
+            toastMsg = `<strong>💳 Payment Initiated</strong><br>${name} clicked the payment link.`;
+        } else {
+            toastType = 'info';
+            toastMsg = `<strong>💰 Step 4 Reached</strong><br>${name} arrived at the payment section.`;
+        }
     } else {
         const segName = {
             1: 'Basic Details',
@@ -315,7 +336,6 @@ function appendFeedLog(session) {
     const fields = session.fields || {};
     const name = fields.name || 'Anonymous Visitor';
     const segment = session.current_segment || 1;
-    const timeStr = new Date(session.last_updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
     // Clean empty state if present
     const empty = feed.querySelector('.empty-state');
@@ -335,18 +355,29 @@ function appendFeedLog(session) {
         icon = '⚙️';
         iconClass = 'warning';
     } else if (segment === 4) {
-        logMsg = `User <strong>${name}</strong> completed registration and payment!`;
-        icon = '🏆';
-        iconClass = 'success';
+        if (fields.transactionId) {
+            logMsg = `User <strong>${name}</strong> completed registration and submitted payment details!`;
+            icon = '🏆';
+            iconClass = 'success';
+        } else if (fields.payment_status === 'Clicked Payment Link') {
+            logMsg = `User <strong>${name}</strong> clicked the payment link.`;
+            icon = '💳';
+            iconClass = 'warning';
+        } else {
+            logMsg = `User <strong>${name}</strong> arrived at the payment section.`;
+            icon = '💰';
+            iconClass = 'info';
+        }
     }
 
     const item = document.createElement('div');
     item.className = 'feed-item';
+    item.setAttribute('data-timestamp', session.last_updated);
     item.innerHTML = `
         <div class="feed-icon ${iconClass}">${icon}</div>
         <div class="feed-content">
             <div class="feed-title">${logMsg}</div>
-            <div class="feed-time">${timeStr}</div>
+            <div class="feed-time">${timeAgo(new Date(session.last_updated))}</div>
         </div>
     `;
 
@@ -509,6 +540,12 @@ function openDetails(sessionId) {
                     <span class="info-label">Payment Method</span>
                     <span class="info-val">${fields.paymentMethod || '—'}</span>
                 </div>
+                <div class="info-item">
+                    <span class="info-label">Payment Status</span>
+                    <span class="info-val" style="font-weight: 700; color: ${fields.transactionId ? 'var(--success)' : (fields.payment_status === 'Clicked Payment Link' ? 'var(--warning)' : 'var(--text-secondary)')};">
+                        ${fields.transactionId ? 'Submitted UTR' : (fields.payment_status || 'Arrived at Step 4')}
+                    </span>
+                </div>
             </div>
         </div>
     `;
@@ -629,3 +666,129 @@ async function clearAllData() {
         showToast("Server connection error.", "error");
     }
 }
+
+// History Modal controls
+function openHistoryModal() {
+    const modal = document.getElementById('history-modal');
+    const tbody = document.getElementById('history-table-body');
+    
+    // Filter last 10 days
+    const tenDaysAgo = new Date();
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    
+    const historySessions = allSessions.filter(session => {
+        const lastUpdated = new Date(session.last_updated);
+        return lastUpdated >= tenDaysAgo;
+    });
+
+    if (historySessions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state" style="padding: 40px 0;">
+                    <div class="empty-state-icon">📅</div>
+                    <div>No entries found in the last 10 days.</div>
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = historySessions.map(session => {
+            const fields = session.fields || {};
+            const name = fields.name || 'Anonymous Visitor';
+            const city = fields.city || 'Unknown';
+            const segment = session.current_segment || 1;
+            const lastUpdated = new Date(session.last_updated);
+            
+            const badgeClasses = {
+                1: 'badge badge-seg1',
+                2: 'badge badge-seg2',
+                3: 'badge badge-seg3',
+                4: 'badge badge-seg4'
+            };
+            const badgeClass = badgeClasses[segment] || 'badge badge-seg1';
+            
+            const segmentNames = {
+                1: '1. Basic Info',
+                2: '2. Profile',
+                3: '3. Preferences',
+                4: '4. Completed'
+            };
+            const segmentName = segmentNames[segment] || `Step ${segment}`;
+            const progressPct = segment * 25;
+            const progressClass = segment === 4 ? 'mini-progress-fill completed' : 'mini-progress-fill';
+            const initial = name.charAt(0).toUpperCase();
+
+            return `
+                <tr>
+                    <td>
+                        <div class="avatar-cell">
+                            <div class="avatar">${initial}</div>
+                            <div>
+                                <div style="font-weight: 700;">${name}</div>
+                                <div class="text-sub">${fields.email || 'No email'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>${city}</div>
+                        <div class="text-sub">${fields.mobile || 'No Mobile'}</div>
+                    </td>
+                    <td>
+                        <span class="${badgeClass}">${segmentName}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="mini-progress">
+                                <div class="${progressClass}" style="width: ${progressPct}%;"></div>
+                            </div>
+                            <span style="font-size: 0.8rem; font-weight: 600;">${progressPct}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">${timeAgo(lastUpdated)}</div>
+                        <div class="text-sub" style="font-size: 0.75rem;">${formatTime(lastUpdated)} (${formatDate(lastUpdated)})</div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    modal.classList.add('active');
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').classList.remove('active');
+}
+
+// Close history modal clicking overlay background
+document.getElementById('history-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'history-modal') {
+        closeHistoryModal();
+    }
+});
+
+// Automatically update relative timestamps in real-time
+setInterval(() => {
+    // Update Sessions Table relative times
+    document.querySelectorAll('.time-cell').forEach(cell => {
+        const timestamp = cell.getAttribute('data-timestamp');
+        if (timestamp) {
+            const date = new Date(timestamp);
+            const relativeEl = cell.querySelector('.time-ago');
+            if (relativeEl) {
+                relativeEl.innerText = timeAgo(date);
+            }
+        }
+    });
+
+    // Update Activity Feed relative times
+    document.querySelectorAll('.feed-item').forEach(item => {
+        const timestamp = item.getAttribute('data-timestamp');
+        if (timestamp) {
+            const date = new Date(timestamp);
+            const timeEl = item.querySelector('.feed-time');
+            if (timeEl) {
+                timeEl.innerText = timeAgo(date);
+            }
+        }
+    });
+}, 10000);

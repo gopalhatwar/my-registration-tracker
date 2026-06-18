@@ -5,7 +5,7 @@ import queue
 import threading
 import urllib.request
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 
@@ -133,14 +133,24 @@ def build_notification_message(session):
     city = session.get('fields', {}).get('city', 'Unknown City')
     mobile = session.get('fields', {}).get('mobile', 'N/A')
     segment = session.get('current_segment', 1)
-    seg_name = get_segment_name(segment)
+    fields = session.get('fields', {})
     
+    if segment == 4:
+        if fields.get('transactionId'):
+            status = "Completed Registration & Submitted UTR"
+        elif fields.get('payment_status') == 'Clicked Payment Link':
+            status = "Clicked Payment Link (Attempting Payment)"
+        else:
+            status = "Arrived at Step 4 (Payment Section)"
+    else:
+        status = f"Completed {get_segment_name(segment)}"
+        
     msg = f"<b>🔔 Progress Alert:</b>\n"
     msg += f"<b>User:</b> {name}\n"
     msg += f"<b>City:</b> {city}\n"
     msg += f"<b>Mobile:</b> {mobile}\n"
-    msg += f"<b>Status:</b> Just completed {seg_name}\n"
-    msg += f"<b>Time:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    msg += f"<b>Status:</b> {status}\n"
+    msg += f"<b>Time:</b> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}"
     return msg
 
 def build_discord_embed(session):
@@ -149,16 +159,27 @@ def build_discord_embed(session):
     email = session.get('fields', {}).get('email', 'N/A')
     mobile = session.get('fields', {}).get('mobile', 'N/A')
     segment = session.get('current_segment', 1)
-    seg_name = get_segment_name(segment)
+    fields = session.get('fields', {})
     
-    colors = {
-        1: 3447003,  # Blue
-        2: 10181046, # Purple
-        3: 15844367, # Yellow
-        4: 3066993   # Green (Completed)
-    }
-    color = colors.get(segment, 3447003)
-    
+    if segment == 4:
+        if fields.get('transactionId'):
+            seg_name = "Completed Form & Submitted UTR"
+            color = 3066993   # Green (Completed)
+        elif fields.get('payment_status') == 'Clicked Payment Link':
+            seg_name = "Clicked Payment Link (Attempting Payment)"
+            color = 15105570  # Orange
+        else:
+            seg_name = "Arrived at Step 4 (Payment Section)"
+            color = 3447003   # Blue
+    else:
+        seg_name = get_segment_name(segment)
+        colors = {
+            1: 3447003,  # Blue
+            2: 10181046, # Purple
+            3: 15844367, # Yellow
+        }
+        color = colors.get(segment, 3447003)
+        
     embed = {
         "title": f"Form Progression Update",
         "description": f"User **{name}** has advanced in the registration process.",
@@ -170,7 +191,7 @@ def build_discord_embed(session):
             {"name": "Email", "value": email, "inline": True}
         ],
         "footer": {
-            "text": f"Session: {session.get('id')} | {datetime.now().strftime('%H:%M:%S')}"
+            "text": f"Session: {session.get('id')} | {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}"
         }
     }
     return embed
@@ -340,7 +361,7 @@ class FormTrackerHandler(BaseHTTPRequestHandler):
         # Segment counts for the funnel
         segments_count = {1: 0, 2: 0, 3: 0, 4: 0}
         
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         for session in sessions.values():
             seg = session.get('current_segment', 1)
             # Increment counts for funnel (if user is at segment 3, they completed 1 & 2 as well)
@@ -355,6 +376,8 @@ class FormTrackerHandler(BaseHTTPRequestHandler):
                 last_up = session.get('last_updated', '')
                 try:
                     dt = datetime.fromisoformat(last_up)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
                     diff = (now - dt).total_seconds()
                     if diff < 900:  # 15 minutes
                         active_fillers += 1
@@ -418,7 +441,7 @@ class FormTrackerHandler(BaseHTTPRequestHandler):
         fields = body.get('fields', {})
         
         sessions = load_db(SESSIONS_FILE, {})
-        now_str = datetime.now().isoformat()
+        now_str = datetime.now(timezone.utc).isoformat()
         
         is_new_session = False
         if not session_id or session_id not in sessions:
