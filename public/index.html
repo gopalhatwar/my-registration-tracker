@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Registration Form</title>
+    <meta name="description" content="Complete your registration in 4 quick steps. Progress is autosaved.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Header -->
+        <h1 id="form-main-title">Join Our Program</h1>
+        <p class="subtitle" id="form-sub-title">Complete your details to secure your spot. Your progress is saved automatically!</p>
+
+        <!-- Stepper Indicator -->
+        <div class="progress-stepper glass">
+            <div class="progress-line">
+                <div class="progress-line-fill" id="step-progress-line"></div>
+            </div>
+            
+            <div class="step-node active" data-step="1" onclick="navigateToStep(1)">
+                <div class="step-circle">1</div>
+                <span class="step-label">Basic</span>
+            </div>
+            <div class="step-node" data-step="2" onclick="navigateToStep(2)">
+                <div class="step-circle">2</div>
+                <span class="step-label">Profile</span>
+            </div>
+            <div class="step-node" data-step="3" onclick="navigateToStep(3)">
+                <div class="step-circle">3</div>
+                <span class="step-label">Goals</span>
+            </div>
+            <div class="step-node" data-step="4" onclick="navigateToStep(4)">
+                <div class="step-circle">4</div>
+                <span class="step-label">Payment</span>
+            </div>
+        </div>
+
+        <!-- Form Wizard Card -->
+        <div class="form-card glass" id="form-card-panel">
+            <form id="registration-form" novalidate>
+                
+                <!-- SEGMENT 1: Basic Details -->
+                <div class="form-segment active" id="segment-1">
+                    <h2 class="segment-title">Basic Details</h2>
+                    <p class="segment-desc">Provide your contact info so we can reach you.</p>
+
+                    <div class="form-group">
+                        <label for="name">Full Name <span>*</span></label>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="mobile">Mobile Number <span>*</span></label>
+                            <input type="tel" id="mobile" name="mobile" placeholder="10-digit mobile" required>
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="altMobile">Alternate Mobile</label>
+                            <input type="tel" id="altMobile" name="altMobile" placeholder="Optional number">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email ID <span>*</span></label>
+                        <input type="email" id="email" name="email" placeholder="example@domain.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city">City <span>*</span></label>
+                        <input type="text" id="city" name="city" placeholder="Your current city" required>
+                    </div>
+                </div>
+
+                <!-- SEGMENT 2: Profile & Experience -->
+                <div class="form-segment" id="segment-2">
+                    <h2 class="segment-title">Profile & Experience</h2>
+                    <p class="segment-desc">Tell us a bit about your professional or academic background.</p>
+
+                    <div class="form-group">
+                        <label for="currentStatus">Current Status <span>*</span></label>
+                        <select id="currentStatus" name="currentStatus" required>
+                            <option value="" disabled selected>Select your status</option>
+                            <option value="Student">Student (College / School)</option>
+                            <option value="Working Professional">Working Professional</option>
+                            <option value="Job Seeker">Job Seeker / Freelancer</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organization" id="org-label">College / Organization Name <span>*</span></label>
+                        <input type="text" id="organization" name="organization" placeholder="e.g. Stanford University or Google" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="specialization">Specialization / Domain <span>*</span></label>
+                            <input type="text" id="specialization" name="specialization" placeholder="e.g. Computer Science, Marketing" required>
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="experience">Years of Experience <span>*</span></label>
+                            <select id="experience" name="experience" required>
+                                <option value="0" selected>Freshers / 0 years</option>
+                                <option value="1-2">1 - 2 Years</option>
+                                <option value="3-5">3 - 5 Years</option>
+                                <option value="5+">5+ Years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="highestQualification">Highest Qualification / Graduation Year <span>*</span></label>
+                        <select id="highestQualification" name="highestQualification" required>
+                            <option value="" disabled selected>Select Qualification / Graduation Year</option>
+                            <option value="10th Pass">10th Pass</option>
+                            <option value="12th Pass">12th Pass</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="2010">2010</option>
+                            <option value="2011">2011</option>
+                            <option value="2012">2012</option>
+                            <option value="2013">2013</option>
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SEGMENT 3: Program Preferences -->
+                <div class="form-segment" id="segment-3">
+                    <h2 class="segment-title">Program Preferences</h2>
+                    <p class="segment-desc">Configure your class schedules and preferences.</p>
+
+                    <div class="form-group">
+                        <label for="source">How did you hear about this program? <span>*</span></label>
+                        <select id="source" name="source" required>
+                            <option value="" disabled selected>Choose an option</option>
+                            <option value="Social Media">Social Media (Instagram/LinkedIn/Facebook)</option>
+                            <option value="Google Search">Google Search / Website</option>
+                            <option value="Friend Referral">Friend or Colleague Referral</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="courseInfoReceived">Did you get all the information about your course? <span>*</span></label>
+                        <select id="courseInfoReceived" name="courseInfoReceived" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="counselorRating">How do you rate your counselor for Career Guidance and expertise in Program explanation? <span>*</span></label>
+                        <select id="counselorRating" name="counselorRating" required>
+                            <option value="" disabled selected>Select rating</option>
+                            <option value="5 - Excellent">5 - Excellent</option>
+                            <option value="4 - Good">4 - Good</option>
+                            <option value="3 - Average">3 - Average</option>
+                            <option value="2 - Below Average">2 - Below Average</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recommendImarticus">Will you recommend Imarticus to your Friends? <span>*</span></label>
+                        <select id="recommendImarticus" name="recommendImarticus" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mainObjective">Select your main objective to join this course <span>*</span></label>
+                        <select id="mainObjective" name="mainObjective" required>
+                            <option value="" disabled selected>Choose your main objective</option>
+                            <option value="Job Placement / Career Transition">Job Placement / Career Transition</option>
+                            <option value="Upskilling / Skill Enhancement">Upskilling / Skill Enhancement</option>
+                            <option value="Certification for Resume">Certification for Resume</option>
+                            <option value="Networking with Industry Professionals">Networking with Industry Professionals</option>
+                            <option value="Salary Increment / Promotion">Salary Increment / Promotion</option>
+                            <option value="Academic / College Project Help">Academic / College Project Help</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SEGMENT 4: Payment Confirmation -->
+                <div class="form-segment" id="segment-4">
+                    <h2 class="segment-title">Payment & Confirmation</h2>
+                    <p class="segment-desc">Please complete the fee payment to confirm your seat.</p>
+
+                    <div class="payment-section">
+                        <a href="https://pegasus.imarticus.org/payments/pay/" target="_blank" class="payment-btn" id="payment-link-btn">
+                            💳 Click to Complete the registration Fees
+                        </a>
+                        <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 5px;">
+                            Clicking opens the secure payment page. Return here after paying.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transactionId">Payment Transaction ID / UTR <span>*</span></label>
+                        <input type="text" id="transactionId" name="transactionId" placeholder="Enter UPI Ref No. or Transaction ID" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Mode <span>*</span></label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                            <option value="" disabled selected>Choose payment mode</option>
+                            <option value="UPI / GPay / PhonePe">UPI (Google Pay, PhonePe, Paytm)</option>
+                            <option value="Credit / Debit Card">Credit / Debit Card</option>
+                            <option value="Net Banking">Net Banking</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span>I confirm that the details provided are correct and I have initiated the payment.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Actions / Navigation Buttons -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary btn-disabled" id="btn-back" onclick="changeStep(-1)">
+                        ← Back
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btn-next" onclick="changeStep(1)">
+                        Next Step →
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Success Modal/View (Shown after complete form submission) -->
+        <div class="glass success-view" id="success-panel" style="display: none;">
+            <div class="success-icon">✓</div>
+            <h2 style="font-weight: 800; font-size: 1.8rem; margin-bottom: 8px;">Registration Complete!</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Thank you for registering. Your details and payment information have been successfully logged.
+            </p>
+            
+            <!-- Google Form CTA Card -->
+            <div class="glass" style="background: rgba(139, 92, 246, 0.06); border: 1.5px dashed var(--primary); border-radius: 16px; padding: 25px; margin-bottom: 30px; text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 600; margin-bottom: 15px; line-height: 1.5;">
+                    ⚠️ ACTION REQUIRED: To complete your enrollment process, please fill out the remaining sections on Google Forms:
+                </p>
+                <a href="https://forms.gle/ErJZ5eeGG7cnjvTB6" target="_blank" class="payment-btn" style="background: var(--primary-gradient); display: inline-block; margin: 0 auto; text-decoration: none;">
+                    📋 Click to complete Admission Details
+                </a>
+                <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 10px;">
+                    This link will open in a new tab. Please complete the form immediately.
+                </p>
+            </div>
+
+            <button class="btn btn-secondary" style="display: inline-flex; margin: 0 auto;" onclick="resetFormState()">
+                Submit Another Response
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Script connection -->
+    <script src="app.js"></script>
+</body>
+</html>

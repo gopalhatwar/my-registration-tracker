@@ -28,18 +28,70 @@ sse_clients = []
 
 # Helper: Load/Save JSON DB
 def load_db(file_path, default=None):
-    if default is None:
-        default = {}
+    upstash_url = os.environ.get('UPSTASH_REDIS_REST_URL')
+    upstash_token = os.environ.get('UPSTASH_REDIS_REST_TOKEN')
+    
+    if upstash_url and upstash_token:
+        key = os.path.basename(file_path)
+        try:
+            req_data = json.dumps(["GET", key]).encode('utf-8')
+            req = urllib.request.Request(
+                upstash_url,
+                data=req_data,
+                headers={
+                    'Authorization': f'Bearer {upstash_token}',
+                    'Content-Type': 'application/json'
+                }
+            )
+            ctx = urllib.request.ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = urllib.request.ssl.CERT_NONE
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
+                res = json.loads(response.read().decode('utf-8'))
+                val = res.get('result')
+                if val is None:
+                    return default if default is not None else {}
+                return json.loads(val)
+        except Exception as e:
+            print(f"Error loading from Upstash for {key}: {e}")
+            return default if default is not None else {}
+
     with db_lock:
         if not os.path.exists(file_path):
-            return default
+            return default if default is not None else {}
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception:
-            return default
+            return default if default is not None else {}
 
 def save_db(file_path, data):
+    upstash_url = os.environ.get('UPSTASH_REDIS_REST_URL')
+    upstash_token = os.environ.get('UPSTASH_REDIS_REST_TOKEN')
+    
+    if upstash_url and upstash_token:
+        key = os.path.basename(file_path)
+        try:
+            val_str = json.dumps(data)
+            req_data = json.dumps(["SET", key, val_str]).encode('utf-8')
+            req = urllib.request.Request(
+                upstash_url,
+                data=req_data,
+                headers={
+                    'Authorization': f'Bearer {upstash_token}',
+                    'Content-Type': 'application/json'
+                }
+            )
+            ctx = urllib.request.ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = urllib.request.ssl.CERT_NONE
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as response:
+                res = json.loads(response.read().decode('utf-8'))
+                return res.get('result') == 'OK'
+        except Exception as e:
+            print(f"Error saving to Upstash for {key}: {e}")
+            return False
+
     with db_lock:
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
@@ -56,7 +108,8 @@ default_settings = {
     "discord_webhook": "",
     "enable_notifications": True
 }
-if not os.path.exists(SETTINGS_FILE):
+settings = load_db(SETTINGS_FILE, None)
+if settings is None:
     save_db(SETTINGS_FILE, default_settings)
 
 # Broadcast event to all active SSE clients

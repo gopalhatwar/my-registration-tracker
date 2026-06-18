@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Progress Tracker - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-title-wrap">
+                <div class="admin-logo">📈</div>
+                <div>
+                    <h1 style="text-align: left; margin: 0; font-size: 1.8rem;">Lead Progress Tracker</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
+                        Monitor user form interactions in real-time
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px; font-style: italic; opacity: 0.85;">
+                        An Initiative by Gopal Hatwar
+                    </p>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="status-badge-live" id="stream-status">Connecting Stream...</span>
+                <nav class="admin-nav">
+                    <button class="nav-tab active" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Live Funnel</button>
+                    <button class="nav-tab" id="tab-settings" onclick="switchTab('settings')">⚙️ Integrations</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Toast Alerts Container -->
+        <div class="toast-container" id="toast-bin"></div>
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- DASHBOARD TAB -->
+        <!-- ------------------------------------------------------------- -->
+        <div id="view-dashboard">
+            
+            <!-- Metrics Panel -->
+            <div class="stats-grid">
+                <div class="glass stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Visits</div>
+                    <div class="stat-val" id="metric-visits">0</div>
+                </div>
+                <div class="glass stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-label">Active Fillers (15m)</div>
+                    <div class="stat-val" id="metric-active">0</div>
+                </div>
+                <div class="glass stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-label">Completed Registrations</div>
+                    <div class="stat-val" id="metric-completed">0</div>
+                </div>
+                <div class="glass stat-card">
+                    <div class="stat-icon">📉</div>
+                    <div class="stat-label">Drop-off Rate</div>
+                    <div class="stat-val" id="metric-dropoff">0%</div>
+                </div>
+            </div>
+
+            <!-- Lower Layout: Grid & Funnel/Logs -->
+            <div class="dashboard-grid">
+                
+                <!-- Left: Sessions Table -->
+                <div class="glass" style="padding: 24px; min-height: 500px;">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Real-Time User Sessions</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="openHistoryModal()">📅 History (10d)</button>
+                            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="loadDashboardData()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Participant</th>
+                                    <th>City</th>
+                                    <th>Current Step</th>
+                                    <th>Progress</th>
+                                    <th>Last Active</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="session-table-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <div class="empty-state-icon">📡</div>
+                                        <div>Waiting for incoming registrations...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Funnel Chart & Live Logs -->
+                <div style="display: flex; flex-direction: column; gap: 30px;">
+                    
+                    <!-- Funnel Chart Card -->
+                    <div class="glass funnel-panel">
+                        <h3 class="panel-title">Conversion Funnel</h3>
+                        
+                        <div class="funnel-container" id="funnel-chart">
+                            <!-- Segment 1 -->
+                            <div class="funnel-row">
+                                <div class="funnel-label-row">
+                                    <span>Segment 1: Basic Info</span>
+                                    <span id="funnel-count-1">0 Users</span>
+                                </div>
+                                <div class="funnel-bar-outer">
+                                    <div class="funnel-bar-inner" id="funnel-bar-1" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Segment 2 -->
+                            <div class="funnel-row">
+                                <div class="funnel-label-row">
+                                    <span>Segment 2: Profile</span>
+                                    <span id="funnel-count-2">0 Users</span>
+                                </div>
+                                <div class="funnel-bar-outer">
+                                    <div class="funnel-bar-inner" id="funnel-bar-2" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Segment 3 -->
+                            <div class="funnel-row">
+                                <div class="funnel-label-row">
+                                    <span>Segment 3: Batch Prefs</span>
+                                    <span id="funnel-count-3">0 Users</span>
+                                </div>
+                                <div class="funnel-bar-outer">
+                                    <div class="funnel-bar-inner" id="funnel-bar-3" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Segment 4 -->
+                            <div class="funnel-row">
+                                <div class="funnel-label-row">
+                                    <span>Segment 4: Completed</span>
+                                    <span id="funnel-count-4">0 Users</span>
+                                </div>
+                                <div class="funnel-bar-outer">
+                                    <div class="funnel-bar-inner" id="funnel-bar-4" style="width: 0%;">0%</div>
+                                    <span class="funnel-percent" id="funnel-percent-4">0% CR</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Activity Log -->
+                    <div class="glass feed-panel">
+                        <h3 class="panel-title" style="margin-bottom: 15px;">Live Activity Log</h3>
+                        <div class="feed-list" id="activity-feed">
+                            <div class="empty-state" style="padding: 20px;">
+                                No recent activity
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- SETTINGS TAB -->
+        <!-- ------------------------------------------------------------- -->
+        <div id="view-settings" style="display: none;">
+            
+            <div class="settings-grid">
+                
+                <!-- Main Configuration Panel -->
+                <div class="glass settings-card">
+                    <h3 class="panel-title" style="margin-bottom: 8px;">Notifications Integrations</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 24px;">
+                        Configure automated messages to be pushed instantly when users advance across segments.
+                    </p>
+
+                    <form id="settings-form" onsubmit="saveSettings(event)">
+                        
+                        <div class="toggle-container">
+                            <div>
+                                <h4 style="font-weight: 700; font-size: 0.95rem; margin-bottom: 2px;">Enable Instant Notifications</h4>
+                                <p style="color: var(--text-muted); font-size: 0.78rem;">Turn on/off all external telegram/discord messages.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="enable_notifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+
+                        <!-- Discord Section -->
+                        <div style="border-top: 1px solid var(--card-border); padding-top: 24px; margin-top: 24px; margin-bottom: 30px;">
+                            <h4 style="font-weight: 700; margin-bottom: 12px; color: #5865f2; display: flex; align-items: center; gap: 8px;">
+                                <span>👾</span> Discord Webhook Integration
+                            </h4>
+                            
+                            <div class="form-group">
+                                <label for="discord_webhook">Discord Webhook URL</label>
+                                <input type="text" id="discord_webhook" placeholder="https://discord.com/api/webhooks/...">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px;">
+                            <button type="submit" class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+                            <button type="button" class="btn btn-secondary" onclick="testNotification()">🧪 Test Integration</button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Helper Card -->
+                <div class="glass" style="padding: 24px;">
+                    <h4 style="font-weight: 700; margin-bottom: 12px;">Integration Guide</h4>
+                    <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 18px; line-height: 1.7;">
+                        <li style="margin-bottom: 12px;">
+                            <strong>Discord Channel:</strong> Go to Discord channel settings $\rightarrow$ Integrations $\rightarrow$ Webhooks $\rightarrow$ Create Webhook, copy the webhook URL.
+                        </li>
+                        <li>
+                            <strong>Sound Alerts:</strong> When the dashboard is open, the browser will automatically play a synthesized chiptune sound alert whenever a user steps up a segment.
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- VIEW DETAILS MODAL -->
+    <!-- ------------------------------------------------------------- -->
+    <div class="modal-overlay" id="details-modal">
+        <div class="glass modal-card">
+            
+            <div class="modal-header">
+                <h3 style="font-weight: 800; font-size: 1.25rem;">Participant Profile</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="modal-body" id="modal-content">
+                <!-- Populated dynamically via Javascript -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- VIEW HISTORY MODAL -->
+    <!-- ------------------------------------------------------------- -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="glass modal-card" style="max-width: 900px; width: 90%; max-height: 85vh; display: flex; flex-direction: column;">
+            
+            <div class="modal-header" style="flex-shrink: 0;">
+                <h3 style="font-weight: 800; font-size: 1.25rem;">📅 Form Entries History (Last 10 Days)</h3>
+                <button class="close-btn" onclick="closeHistoryModal()">×</button>
+            </div>
+            
+            <div class="modal-body" style="overflow-y: auto; flex-grow: 1; padding: 20px;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Participant</th>
+                                <th>City / Contact</th>
+                                <th>Current Step</th>
+                                <th>Progress</th>
+                                <th>Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Populated dynamically via Javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="admin.js"></script>
+</body>
+</html>
