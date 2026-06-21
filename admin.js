@@ -189,6 +189,7 @@ function renderSessionsTable() {
                         <div>
                             <div style="font-weight: 700;">${name}</div>
                             <div class="text-sub">${fields.email || 'No email'}</div>
+                            ${fields.program ? `<div class="text-sub" style="color: var(--warning); font-weight: 600; margin-top: 2px;">📚 ${fields.program}</div>` : ''}
                         </div>
                     </div>
                 </td>
@@ -503,6 +504,10 @@ function openDetails(sessionId) {
         <div class="info-section">
             <div class="info-section-title" style="color: var(--warning);">Segment 3: Program Preferences</div>
             <div class="info-grid">
+                <div class="info-item" style="grid-column: span 2;">
+                    <span class="info-label">Selected Program</span>
+                    <span class="info-val" style="color: var(--warning); font-size: 1.05rem; font-weight: 700;">${fields.program || '—'}</span>
+                </div>
                 <div class="info-item">
                     <span class="info-label">Referral / Source</span>
                     <span class="info-val">${fields.source || '—'}</span>
@@ -544,6 +549,16 @@ function openDetails(sessionId) {
                     <span class="info-label">Payment Status</span>
                     <span class="info-val" style="font-weight: 700; color: ${fields.transactionId ? 'var(--success)' : (fields.payment_status === 'Clicked Payment Link' ? 'var(--warning)' : 'var(--text-secondary)')};">
                         ${fields.transactionId ? 'Submitted UTR' : (fields.payment_status || 'Arrived at Step 4')}
+                    </span>
+                </div>
+                <div class="info-item" style="grid-column: span 2; margin-top: 15px;">
+                    <span class="info-label">Payment Screenshot</span>
+                    <span class="info-val">
+                        ${fields.paymentScreenshot ? 
+                            `<div class="screenshot-admin-preview">
+                                <img src="${fields.paymentScreenshot}" alt="Payment Screenshot" class="admin-screenshot-thumbnail" onclick="viewFullScreenshot(this.src)">
+                                <a href="${fields.paymentScreenshot}" download="screenshot_${fields.name || 'user'}.png" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; display: inline-flex; margin-top: 8px; text-decoration: none;">📥 Download Image</a>
+                             </div>` : '—'}
                     </span>
                 </div>
             </div>
@@ -725,6 +740,7 @@ function openHistoryModal() {
                             <div>
                                 <div style="font-weight: 700;">${name}</div>
                                 <div class="text-sub">${fields.email || 'No email'}</div>
+                                ${fields.program ? `<div class="text-sub" style="color: var(--warning); font-weight: 600; margin-top: 2px;">📚 ${fields.program}</div>` : ''}
                             </div>
                         </div>
                     </td>
@@ -792,3 +808,31 @@ setInterval(() => {
         }
     });
 }, 10000);
+
+function viewFullScreenshot(src) {
+    const lightbox = document.getElementById('lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    if (lightbox && img) {
+        img.src = src;
+        lightbox.classList.add('active');
+    }
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox-modal');
+    if (lightbox) {
+        lightbox.classList.remove('active');
+    }
+}
+
+// Close lightbox on clicking background
+document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox-modal');
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox-modal') {
+                closeLightbox();
+            }
+        });
+    }
+});

@@ -3,6 +3,26 @@ let currentStep = 1;
 const STORAGE_KEY_SESSION = 'tracker_session_id';
 const STORAGE_KEY_FORM_DATA = 'tracker_form_data';
 
+// Program ID mappings for auto-selecting on Pegasus payment link
+const PROGRAM_ID_MAP = {
+    "Association of Chartered Certified Accountants (ACCA)": "642c16c518696f4c68996c05",
+    "Chartered Financial Analyst (CFA) - Level 1": "6565d97a8ac911285fa460f2",
+    "Chartered Financial Analyst (CFA)": "659fad234e1737d7d027eb9b",
+    "Certified Investment Banking Operations Professional": "61efa31b7025de31db4efffd",
+    "Financial Risk Manager - FRM": "67e0fcec35f7a9574927539b",
+    "Certification in Data Analytics with Gen AI": "6819df0a9456eeff7edcad0e",
+    "Certified Management Accountant Offline - CMA Off": "691c0612c071fb6c7c76774f",
+    "Association of Chartered Certified Accountants Offline- ACCA Off": "691c0a4319a4cdd5cd59bbfc",
+    "Financial Modeling & Valuations Analyst (FMVA)": "6a1833819f3c776c6c54761f",
+    "Certified FinTech Operations Program (CFOP)": "6a1834621143fccbbc79c752",
+    "Certification in Artificial Intelligence and Machine Learning": "62c52c7dc910112f702464b9",
+    "Post Graduate Program In Banking And Finance": "6273a1b3bf8cd20ebb4f4a4f",
+    "Financial Analysis Prodegree": "62692de23a7e894499825ba1",
+    "Postgraduate Program in Data Science and Analytics": "63a4437c19495e23014fb43a",
+    "Post Graduate Program in Financial Analysis": "642d6043c9b6d856751c2cfa",
+    "Certified Public Accountant (CPA)": "64c7bcce00c336436a5094f7"
+};
+
 // Server base URL (dynamic based on current host)
 const API_URL = `${window.location.origin}/api/session/update`;
 
@@ -22,6 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
     populateForm();
     setupAutosave();
     setupPaymentTracking();
+    setupScreenshotUpload();
     navigateToStep(currentStep, false);
 });
 
@@ -41,7 +62,11 @@ function populateForm() {
     Object.keys(formData).forEach(key => {
         const input = form.elements[key];
         if (input) {
-            if (input.type === 'checkbox') {
+            if (input.type === 'file') {
+                if (formData[key]) {
+                    showScreenshotPreview(formData[key]);
+                }
+            } else if (input.type === 'checkbox') {
                 input.checked = formData[key];
             } else {
                 input.value = formData[key];
@@ -67,12 +92,122 @@ function setupAutosave() {
 }
 
 function saveField(input) {
+    if (input.type === 'file') return; // Skip file inputs, handled separately
     if (input.type === 'checkbox') {
         formData[input.name] = input.checked;
     } else {
         formData[input.name] = input.value;
     }
     localStorage.setItem(STORAGE_KEY_FORM_DATA, JSON.stringify(formData));
+}
+
+function setupScreenshotUpload() {
+    const card = document.getElementById('screenshot-upload-card');
+    const fileInput = document.getElementById('paymentScreenshot');
+    const removeBtn = document.getElementById('btn-remove-screenshot');
+    
+    if (!card || !fileInput || !removeBtn) return;
+    
+    // Trigger file input click when card is clicked
+    card.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // Drag & Drop event listeners
+    card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        card.style.borderColor = 'var(--primary)';
+        card.style.background = 'rgba(15, 23, 42, 0.6)';
+    });
+    
+    card.addEventListener('dragleave', () => {
+        card.style.borderColor = '';
+        card.style.background = '';
+    });
+    
+    card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.style.borderColor = '';
+        card.style.background = '';
+        
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+    
+    // File input change listener
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+    
+    // Remove button listener
+    removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeScreenshot();
+    });
+}
+
+function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (PNG, JPG, JPEG).');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const base64Data = e.target.result;
+        
+        // Save in state
+        formData['paymentScreenshot'] = base64Data;
+        localStorage.setItem(STORAGE_KEY_FORM_DATA, JSON.stringify(formData));
+        
+        // Show preview
+        showScreenshotPreview(base64Data);
+        
+        // Clear validation style
+        const card = document.getElementById('screenshot-upload-card');
+        if (card) {
+            card.style.borderColor = '';
+        }
+        
+        // Sync with backend
+        syncWithBackend();
+    };
+    reader.readAsDataURL(file);
+}
+
+function showScreenshotPreview(base64Data) {
+    const card = document.getElementById('screenshot-upload-card');
+    const container = document.getElementById('screenshot-preview-container');
+    const img = document.getElementById('screenshot-preview-img');
+    
+    if (img && card && container) {
+        img.src = base64Data;
+        card.style.display = 'none';
+        container.style.display = 'flex';
+    }
+}
+
+function removeScreenshot() {
+    const card = document.getElementById('screenshot-upload-card');
+    const container = document.getElementById('screenshot-preview-container');
+    const img = document.getElementById('screenshot-preview-img');
+    const fileInput = document.getElementById('paymentScreenshot');
+    
+    if (img && card && container && fileInput) {
+        img.src = '';
+        card.style.display = 'flex';
+        container.style.display = 'none';
+        fileInput.value = '';
+    }
+    
+    delete formData['paymentScreenshot'];
+    localStorage.setItem(STORAGE_KEY_FORM_DATA, JSON.stringify(formData));
+    syncWithBackend();
 }
 
 // Synchronize user progress to server
@@ -152,7 +287,7 @@ function navigateToStep(step, runValidation = true) {
 
     // Configure Next button text (Next Step vs Submit)
     if (step === 4) {
-        btnNext.innerHTML = '💳 Submit Registration & Pay';
+        btnNext.innerHTML = '📋 Submit Application and Fill Basic Enrollment details';
         btnNext.className = 'btn btn-primary';
 
         // Pre-fill parameters on the external payment URL
@@ -161,8 +296,17 @@ function navigateToStep(step, runValidation = true) {
             const name = encodeURIComponent(formData.name || '');
             const email = encodeURIComponent(formData.email || '');
             const mobile = encodeURIComponent(formData.mobile || '');
-            // Append multiple standard parameter formats to maximize pre-fill compatibility
-            paymentBtn.href = `https://pegasus.imarticus.org/payments/pay/?sessionId=${sessionId}&name=${name}&fullname=${name}&email=${email}&email_id=${email}&phone=${mobile}&mobile=${mobile}&contact=${mobile}&mobileNumber=${mobile}`;
+            
+            let paymentUrl = `https://pegasus.imarticus.org/payments/pay/?sessionId=${sessionId}&name=${name}&fullname=${name}&email=${email}&email_id=${email}&phone=${mobile}&mobile=${mobile}&contact=${mobile}&mobileNumber=${mobile}`;
+            
+            // Auto-select program if a valid program is selected (not NONE OF THE ABOVE)
+            const selectedProgram = formData.program;
+            if (selectedProgram && selectedProgram !== 'NONE OF THE ABOVE -' && PROGRAM_ID_MAP[selectedProgram]) {
+                const programId = PROGRAM_ID_MAP[selectedProgram];
+                paymentUrl += `&crs_pg_id=${encodeURIComponent(programId)}`;
+            }
+            
+            paymentBtn.href = paymentUrl;
         }
     } else {
         btnNext.innerHTML = 'Next Step →';
@@ -195,9 +339,20 @@ function validateStep(step) {
     activeSegment.querySelectorAll('.input-wrapper input, input, select, textarea').forEach(el => {
         el.style.borderColor = '';
     });
+    const card = document.getElementById('screenshot-upload-card');
+    if (card) {
+        card.style.borderColor = '';
+    }
 
     for (let field of requiredFields) {
-        if (field.type === 'checkbox' && !field.checked) {
+        if (field.id === 'paymentScreenshot') {
+            if (!formData['paymentScreenshot']) {
+                if (card) {
+                    card.style.borderColor = 'var(--danger)';
+                }
+                isValid = false;
+            }
+        } else if (field.type === 'checkbox' && !field.checked) {
             field.closest('.checkbox-label').style.color = 'var(--danger)';
             isValid = false;
         } else if (!field.value.trim()) {
@@ -272,13 +427,13 @@ async function submitForm() {
             localStorage.removeItem(STORAGE_KEY_FORM_DATA);
         } else {
             alert('Something went wrong. Please check details and try again.');
-            btnNext.innerHTML = '💳 Submit Registration & Pay';
+            btnNext.innerHTML = '📋 Submit Application and Fill Basic Enrollment details';
             btnNext.classList.remove('btn-disabled');
         }
     } catch (err) {
         console.error('Final submit error:', err);
         alert('Server connection error. Please try again.');
-        btnNext.innerHTML = '💳 Submit Registration & Pay';
+        btnNext.innerHTML = '📋 Submit Application and Fill Basic Enrollment details';
         btnNext.classList.remove('btn-disabled');
     }
 }

@@ -293,6 +293,14 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal for Image Preview -->
+    <div class="modal-overlay" id="lightbox-modal" style="z-index: 2000;">
+        <div class="glass modal-card" style="max-width: 800px; padding: 20px; text-align: center; position: relative;">
+            <button class="close-btn" onclick="closeLightbox()" style="position: absolute; right: 20px; top: 15px; font-size: 2rem;">&times;</button>
+            <img id="lightbox-img" src="" alt="Full Screen Preview" style="max-width: 100%; max-height: 80vh; border-radius: 12px; margin-top: 20px; border: 1px solid var(--card-border);">
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="admin.js"></script>
 </body>

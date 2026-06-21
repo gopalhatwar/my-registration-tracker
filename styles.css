@@ -1188,3 +1188,110 @@ input:checked + .slider:before {
     }
 }
 
+/* Custom File Upload Styling */
+.file-upload-card {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: rgba(15, 23, 42, 0.4);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.file-upload-card:hover {
+    border-color: var(--primary);
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.file-upload-icon {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.file-upload-card:hover .file-upload-icon {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+.file-upload-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.file-upload-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.file-preview-container {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+#screenshot-preview-img {
+    max-height: 80px;
+    max-width: 120px;
+    border-radius: 6px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+}
+
+.btn-remove-file {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-remove-file:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Admin Screenshot Styling */
+.screenshot-admin-preview {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.admin-screenshot-thumbnail {
+    max-width: 180px;
+    max-height: 120px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-screenshot-thumbnail:hover {
+    transform: scale(1.05);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+

@@ -151,6 +151,31 @@
                     <p class="segment-desc">Configure your class schedules and preferences.</p>
 
                     <div class="form-group">
+                        <label for="program">Select Program / Course <span>*</span></label>
+                        <select id="program" name="program" required>
+                            <option value="" disabled selected>Select a program</option>
+                            <option value="Association of Chartered Certified Accountants (ACCA)">1] Association of Chartered Certified Accountants (ACCA)</option>
+                            <option value="Chartered Financial Analyst (CFA) - Level 1">2] Chartered Financial Analyst (CFA) - Level 1</option>
+                            <option value="Chartered Financial Analyst (CFA)">3] Chartered Financial Analyst (CFA)</option>
+                            <option value="Certified Investment Banking Operations Professional">4] Certified Investment Banking Operations Professional</option>
+                            <option value="Financial Risk Manager - FRM">5] Financial Risk Manager - FRM</option>
+                            <option value="Certification in Data Analytics with Gen AI">6] Certification in Data Analytics with Gen AI</option>
+                            <option value="Certified Management Accountant Offline - CMA Off">7] Certified Management Accountant Offline - CMA Off</option>
+                            <option value="Association of Chartered Certified Accountants Offline- ACCA Off">8] Association of Chartered Certified Accountants Offline- ACCA Off</option>
+                            <option value="Financial Modeling & Valuations Analyst (FMVA)">9] Financial Modeling & Valuations Analyst (FMVA)</option>
+                            <option value="Certified FinTech Operations Program (CFOP)">10] Certified FinTech Operations Program (CFOP)</option>
+                            <option value="Certification in Artificial Intelligence and Machine Learning">11] Certification in Artificial Intelligence and Machine Learning</option>
+                            <option value="Post Graduate Program In Banking And Finance">12] Post Graduate Program In Banking And Finance</option>
+                            <option value="Financial Analysis Prodegree">13] Financial Analysis Prodegree</option>
+                            <option value="Postgraduate Program in Data Science and Analytics">14] Postgraduate Program in Data Science and Analytics</option>
+                            <option value="Association of Chartered Certified Accountants (ACCA)">15] Association of Chartered Certified Accountants (ACCA)</option>
+                            <option value="Post Graduate Program in Financial Analysis">16] Post Graduate Program in Financial Analysis</option>
+                            <option value="Certified Public Accountant (CPA)">17] Certified Public Accountant (CPA)</option>
+                            <option value="NONE OF THE ABOVE -">18] NONE OF THE ABOVE -</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="source">How did you hear about this program? <span>*</span></label>
                         <select id="source" name="source" required>
                             <option value="" disabled selected>Choose an option</option>
@@ -233,6 +258,20 @@
                             <option value="Credit / Debit Card">Credit / Debit Card</option>
                             <option value="Net Banking">Net Banking</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentScreenshot">Payment Screenshot <span>*</span></label>
+                        <input type="file" id="paymentScreenshot" name="paymentScreenshot" accept="image/*" required style="display: none;">
+                        <div class="file-upload-card" id="screenshot-upload-card">
+                            <div class="file-upload-icon">📁</div>
+                            <div class="file-upload-text">Click or drag image here to upload screenshot</div>
+                            <div class="file-upload-sub text-muted">Supports PNG, JPG, JPEG</div>
+                        </div>
+                        <div class="file-preview-container" id="screenshot-preview-container" style="display: none;">
+                            <img id="screenshot-preview-img" src="" alt="Payment Screenshot Preview">
+                            <button type="button" class="btn-remove-file" id="btn-remove-screenshot">Remove Image ×</button>
+                        </div>
                     </div>
 
                     <div class="form-group" style="margin-top: 25px;">
