@@ -8,7 +8,7 @@ const PROGRAM_ID_MAP = {
     "Association of Chartered Certified Accountants (ACCA)": "642c16c518696f4c68996c05",
     "Chartered Financial Analyst (CFA) - Level 1": "6565d97a8ac911285fa460f2",
     "Chartered Financial Analyst (CFA)": "659fad234e1737d7d027eb9b",
-    "Certified Investment Banking Operations Professional": "61efa31b7025de31db4efffd",
+    "Certified Investment Banking Operations Professional": "65e715a3a92aed9a28442fa4",
     "Financial Risk Manager - FRM": "67e0fcec35f7a9574927539b",
     "Certification in Data Analytics with Gen AI": "6819df0a9456eeff7edcad0e",
     "Certified Management Accountant Offline - CMA Off": "691c0612c071fb6c7c76774f",
