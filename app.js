@@ -23,8 +23,12 @@ const PROGRAM_ID_MAP = {
     "Certified Public Accountant (CPA)": "64c7bcce00c336436a5094f7"
 };
 
-// Server base URL (dynamic based on current host)
-const API_URL = `${window.location.origin}/api/session/update`;
+// Server base URL (points to Render backend in production, or uses current origin in local dev)
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? window.location.origin
+    : 'https://gopal75612-registration-tracker-backend.hf.space'; // Live backend on Hugging Face Spaces
+
+const API_URL = `${BACKEND_URL}/api/session/update`;
 
 // Dom elements
 const form = document.getElementById('registration-form');

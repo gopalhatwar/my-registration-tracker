@@ -1,10 +1,15 @@
+// Backend Server URL (points to Render backend in production, or relative paths in local dev)
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? ''
+    : 'https://gopal75612-registration-tracker-backend.hf.space'; // Live backend on Hugging Face Spaces
+
 // API Endpoints
-const API_SESSIONS = '/api/admin/sessions';
-const API_STATS = '/api/admin/stats';
-const API_SETTINGS = '/api/admin/settings';
-const API_TEST_NOTIFY = '/api/admin/test-notification';
-const API_STREAM = '/api/admin/stream';
-const API_CLEAR_SESSIONS = '/api/admin/clear-sessions';
+const API_SESSIONS = `${BACKEND_URL}/api/admin/sessions`;
+const API_STATS = `${BACKEND_URL}/api/admin/stats`;
+const API_SETTINGS = `${BACKEND_URL}/api/admin/settings`;
+const API_TEST_NOTIFY = `${BACKEND_URL}/api/admin/test-notification`;
+const API_STREAM = `${BACKEND_URL}/api/admin/stream`;
+const API_CLEAR_SESSIONS = `${BACKEND_URL}/api/admin/clear-sessions`;
 
 // In-memory data store
 let allSessions = [];
